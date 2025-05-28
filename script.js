@@ -5,26 +5,43 @@ const noteText = document.getElementById('note-text');
 const noteTags = document.getElementById('note-tags');
 const saveBtn = document.getElementById('save-btn');
 const searchInput = document.getElementById('search-input');
+const colorPicker = document.getElementById('note-color');
+const recentColorsContainer = document.getElementById('recent-colors');
+const colorPreview = document.querySelector('.color-preview');
+
 
 // Загружаем заметки из LocalStorage
 let notes = JSON.parse(localStorage.getItem('notes')) || [];
+let editingIndex = null;
+let selectedColor = colorPicker.value;
+let recentColors = JSON.parse(localStorage.getItem('recentColors')) || ['#fff9c4', '#e3f2fd', '#f3e5f5'];
 
 // Сохраняем заметки в LocalStorage
 function saveNotes() {
     localStorage.setItem('notes', JSON.stringify(notes));
 }
 
-let selectedColor = '#fff9c4'; // Желтый по умолчанию
-
-// Обработчики цветовых опций
-document.querySelectorAll('.color-option').forEach(option => {
-    option.addEventListener('click', () => {
-        selectedColor = option.dataset.color;
-        document.querySelectorAll('.color-option').forEach(opt =>
-            opt.classList.remove('selected'));
-        option.classList.add('selected');
-    });
+// Обработчик цветовых опций
+colorPicker.addEventListener('input', (e) => {
+    selectedColor = e.target.value;
+    colorPreview.style.backgroundColor = selectedColor;
 });
+
+function updateRecentColors() {
+    recentColorsContainer.innerHTML = '';
+    recentColors.forEach(color => {
+        const colorElement = document.createElement('div');
+        colorElement.className = 'recent-color';
+        colorElement.style.backgroundColor = color;
+        colorElement.title = color;
+        colorElement.addEventListener('click', () => {
+            colorPicker.value = color;
+            selectedColor = color;
+            colorPreview.style.backgroundColor = color;
+        });
+        recentColorsContainer.appendChild(colorElement);
+    });
+}
 
 // Рендерим заметки
 function renderNotes(filteredNotes = notes) {
@@ -95,17 +112,31 @@ function saveNote() {
     const tags = noteTags.value.split(',').map(tag => tag.trim()).filter(tag => tag);
 
     if (text || title) {
-        notes.push({
+        // Добавляем текущий цвет в историю
+        if (!recentColors.includes(selectedColor)) {
+            recentColors.unshift(selectedColor);
+            if (recentColors.length > 5) recentColors.pop();
+            localStorage.setItem('recentColors', JSON.stringify(recentColors));
+            updateRecentColors();
+        }
+
+        const noteData = {
             title: title || 'Без названия',
             text,
             tags,
             color: selectedColor
-        });
+        };
+
+        if (editingIndex !== null) {
+            notes[editingIndex] = noteData;
+            editingIndex = null;
+        } else {
+            notes.push(noteData);
+        }
+
         saveNotes();
         renderNotes();
-        noteTitle.value = '';
-        noteText.value = '';
-        noteTags.value = '';
+        resetForm();
     }
 }
 
@@ -115,18 +146,33 @@ function editNote(index) {
     noteTitle.value = note.title;
     noteText.value = note.text;
     noteTags.value = note.tags.join(', ');
-    document.querySelectorAll('.color-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.dataset.color === note.color);
-    });
+    colorPicker.value = note.color;
     selectedColor = note.color;
-    deleteNote(index);
+    editingIndex = index;
 }
 
 // Удаляем заметку
 function deleteNote(index) {
-    notes.splice(index, 1);
-    saveNotes();
-    renderNotes();
+    if (confirm('Удалить эту заметку?')) {
+        notes.splice(index, 1);
+        saveNotes();
+        renderNotes();
+        if (editingIndex === index) {
+            resetForm();
+            editingIndex = null;
+        }
+    }
+}
+
+// Сбрасываем форму
+function resetForm() {
+    noteTitle.value = '';
+    noteText.value = '';
+    noteTags.value = '';
+    editingIndex = null;
+    colorPicker.value = "#fff9c4";
+    selectedColor = "#fff9c4";
+    colorPreview.style.backgroundColor = "#fff9c4";
 }
 
 // Обработчики событий
@@ -141,6 +187,6 @@ searchInput.addEventListener('input', (e) => {
     renderNotes(filteredNotes);
 });
 
-// Инициализация
-document.querySelector('.color-option').classList.add('selected');
+// Первый рендер
 renderNotes();
+updateRecentColors();
