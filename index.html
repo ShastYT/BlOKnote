@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Мои заметки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app">
+        <h1>📝 Мои заметки</h1>
+
+        <!-- Поиск и фильтр -->
+        <div class="search">
+            <input type="text" id="search-input" placeholder="Поиск...">
+        </div>
+
+        <!-- Форма добавления заметки -->
+        <div class="note-editor">
+            <input type="text" id="note-title" placeholder="Название заметки">
+            <textarea id="note-text" placeholder="Текст заметки"></textarea>
+            <input type="text" id="note-tags" placeholder="Теги (через запятую)">
+            <!-- Добавляем эту кнопку -->
+            <button id="save-btn">Сохранить</button>
+        </div>
+
+        <!-- Список заметок -->
+        <div class="notes-list" id="notes-list"></div>
+
+
+        <div class="color-picker">
+            <div class="color-option" data-color="#fff9c4" style="background-color: #fff9c4"></div>
+            <div class="color-option" data-color="#e3f2fd" style="background-color: #e3f2fd"></div>
+            <div class="color-option" data-color="#f3e5f5" style="background-color: #f3e5f5"></div>
+            <div class="color-option" data-color="#e8f5e9" style="background-color: #e8f5e9"></div>
+            <div class="color-option" data-color="#fff3e0" style="background-color: #fff3e0"></div>
+        </div>
+    </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
