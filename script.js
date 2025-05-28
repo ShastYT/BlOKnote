@@ -1,5 +1,6 @@
 ﻿// Получаем элементы из HTML
 const notesList = document.getElementById('notes-list');
+const noteTitle = document.getElementById('note-title');
 const noteText = document.getElementById('note-text');
 const noteTags = document.getElementById('note-tags');
 const saveBtn = document.getElementById('save-btn');
@@ -15,6 +16,7 @@ function saveNotes() {
 
 let selectedColor = '#fff9c4'; // Желтый по умолчанию
 
+// Обработчики цветовых опций
 document.querySelectorAll('.color-option').forEach(option => {
     option.addEventListener('click', () => {
         selectedColor = option.dataset.color;
@@ -24,6 +26,7 @@ document.querySelectorAll('.color-option').forEach(option => {
     });
 });
 
+// Рендерим заметки
 function renderNotes(filteredNotes = notes) {
     notesList.innerHTML = '';
 
@@ -37,7 +40,7 @@ function renderNotes(filteredNotes = notes) {
         titleElement.className = 'note-title';
         titleElement.textContent = note.title || 'Без названия';
 
-        // Содержимое заметки (первые 3 строки)
+        // Содержимое заметки
         const contentElement = document.createElement('div');
         contentElement.className = 'note-content';
 
@@ -49,7 +52,6 @@ function renderNotes(filteredNotes = notes) {
             contentElement.appendChild(lineElement);
         });
 
-        // Если строк больше 3, добавляем троеточие
         if (lines.length > 3) {
             const moreElement = document.createElement('span');
             moreElement.className = 'note-line more';
@@ -61,11 +63,6 @@ function renderNotes(filteredNotes = notes) {
         const tagsElement = document.createElement('div');
         tagsElement.className = 'note-tags';
         tagsElement.textContent = `Теги: ${note.tags.join(', ')}`;
-
-        // Собираем заметку
-        noteElement.appendChild(titleElement);
-        noteElement.appendChild(contentElement);
-        noteElement.appendChild(tagsElement);
 
         // Кнопки управления
         const editBtn = document.createElement('button');
@@ -81,11 +78,17 @@ function renderNotes(filteredNotes = notes) {
         btnContainer.appendChild(editBtn);
         btnContainer.appendChild(deleteBtn);
 
+        // Собираем заметку
+        noteElement.appendChild(titleElement);
+        noteElement.appendChild(contentElement);
+        noteElement.appendChild(tagsElement);
         noteElement.appendChild(btnContainer);
+
         notesList.appendChild(noteElement);
     });
 }
 
+// Сохраняем заметку
 function saveNote() {
     const title = noteTitle.value.trim();
     const text = noteText.value.trim();
@@ -106,6 +109,7 @@ function saveNote() {
     }
 }
 
+// Редактируем заметку
 function editNote(index) {
     const note = notes[index];
     noteTitle.value = note.title;
@@ -118,6 +122,7 @@ function editNote(index) {
     deleteNote(index);
 }
 
+// Удаляем заметку
 function deleteNote(index) {
     notes.splice(index, 1);
     saveNotes();
@@ -130,10 +135,12 @@ searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filteredNotes = notes.filter(note =>
         note.text.toLowerCase().includes(searchTerm) ||
+        note.title.toLowerCase().includes(searchTerm) ||
         note.tags.some(tag => tag.toLowerCase().includes(searchTerm))
     );
     renderNotes(filteredNotes);
 });
 
-// Первая загрузка
+// Инициализация
+document.querySelector('.color-option').classList.add('selected');
 renderNotes();
