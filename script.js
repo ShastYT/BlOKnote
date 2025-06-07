@@ -1,23 +1,50 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
+    // Элементы DOM
     const stickerContainer = document.getElementById('stickerContainer');
     const addStickerBtn = document.getElementById('addStickerBtn');
     const editModal = document.getElementById('editModal');
+    const confirmModal = document.getElementById('confirmModal');
     const stickerContent = document.getElementById('stickerContent');
     const stickerColor = document.getElementById('stickerColor');
     const stickerTags = document.getElementById('stickerTags');
     const saveStickerBtn = document.getElementById('saveStickerBtn');
     const deleteStickerBtn = document.getElementById('deleteStickerBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
 
     let currentSticker = null;
+    let isPanning = false;
+    let startPanX, startPanY;
+    let containerOffset = { x: 0, y: 0 };
+    let lastPanPosition = { x: 0, y: 0 };
 
     // Добавление нового стикера
     addStickerBtn.addEventListener('click', () => {
-        createSticker('Новый стикер', '#ffeb3b', 100, 100, '');
+        const viewportCenterX = window.innerWidth / 2 - 125;
+        const viewportCenterY = window.innerHeight / 2 - 90;
+        createSticker('Новый стикер', '#ffeb3b',
+            viewportCenterX - containerOffset.x,
+            viewportCenterY - containerOffset.y,
+            '');
     });
+
+    function centerView(x, y) {
+        const targetX = -x + window.innerWidth / 2 - 125;
+        const targetY = -y + window.innerHeight / 2 - 90;
+
+        stickerContainer.style.transition = 'transform 0.5s ease-out';
+        stickerContainer.style.transform = `translate(${targetX}px, ${targetY}px)`;
+
+        setTimeout(() => {
+            containerX = targetX;
+            containerY = targetY;
+            stickerContainer.style.transition = 'none';
+        }, 500);
+    }
 
     // Поиск стикеров
     searchBtn.addEventListener('click', searchStickers);
@@ -39,17 +66,23 @@
             const tags = sticker.dataset.tags ? sticker.dataset.tags.toLowerCase() : '';
 
             if (content.includes(query) || tags.includes(query)) {
-                sticker.classList.remove('hidden');
+                sticker.style.display = 'block';
+                sticker.style.animation = 'popIn 0.3s ease-out';
             } else {
-                sticker.classList.add('hidden');
+                sticker.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    sticker.style.display = 'none';
+                }, 300);
             }
         });
     }
 
     function clearSearch() {
         searchInput.value = '';
-        document.querySelectorAll('.sticker').forEach(sticker => {
-            sticker.classList.remove('hidden');
+        const stickers = document.querySelectorAll('.sticker');
+        stickers.forEach(sticker => {
+            sticker.style.display = 'block';
+            sticker.style.animation = 'popIn 0.3s ease-out';
         });
     }
 
@@ -60,19 +93,20 @@
         sticker.style.backgroundColor = color;
         sticker.style.left = `${x}px`;
         sticker.style.top = `${y}px`;
-        sticker.style.zIndex = '1';
         sticker.dataset.tags = tags;
 
-        // Добавляем ручку для перетаскивания
+        // Ручка для перетаскивания
         const dragHandle = document.createElement('div');
         dragHandle.className = 'sticker-drag-handle';
         sticker.appendChild(dragHandle);
 
+        // Содержимое стикера
         const contentDiv = document.createElement('div');
         contentDiv.className = 'sticker-content';
         contentDiv.textContent = content;
         sticker.appendChild(contentDiv);
 
+        // Теги
         if (tags) {
             const tagsDiv = document.createElement('div');
             tagsDiv.className = 'sticker-tags';
@@ -80,6 +114,7 @@
             sticker.appendChild(tagsDiv);
         }
 
+        // Двойной клик для редактирования
         sticker.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             openEditModal(sticker);
@@ -90,22 +125,18 @@
         return sticker;
     }
 
-    // Функция перетаскивания
+    // Перетаскивание стикера
     function initStickerDrag(sticker, dragHandle) {
         let isDragging = false;
         let startX, startY, stickerX, stickerY;
 
         dragHandle.addEventListener('mousedown', (e) => {
             isDragging = true;
-
-            // Фиксируем начальные координаты
+            sticker.classList.add('dragging');
             startX = e.clientX;
             startY = e.clientY;
-
-            // Получаем текущее положение стикера
             stickerX = parseInt(sticker.style.left) || 0;
             stickerY = parseInt(sticker.style.top) || 0;
-
             sticker.style.zIndex = '1000';
             dragHandle.style.cursor = 'grabbing';
             e.preventDefault();
@@ -115,11 +146,9 @@
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
 
-            // Вычисляем смещение от начальной точки
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
 
-            // Применяем смещение к стикеру
             sticker.style.left = `${stickerX + dx}px`;
             sticker.style.top = `${stickerY + dy}px`;
         });
@@ -129,10 +158,10 @@
                 isDragging = false;
                 sticker.style.zIndex = '1';
                 dragHandle.style.cursor = 'grab';
+                sticker.classList.remove('dragging');
             }
         });
 
-        // Предотвращаем запуск перетаскивания при клике на содержимое
         sticker.querySelector('.sticker-content').addEventListener('mousedown', (e) => {
             e.stopPropagation();
         });
@@ -142,7 +171,7 @@
         });
     }
 
-    // Открытие окна редактирования
+    // Открытие модального окна редактирования
     function openEditModal(sticker) {
         currentSticker = sticker;
         stickerContent.value = sticker.querySelector('.sticker-content').textContent;
@@ -151,9 +180,10 @@
         editModal.style.display = 'block';
     }
 
-    // Закрытие модального окна
+    // Закрытие модальных окон
     function closeModal() {
         editModal.style.display = 'none';
+        confirmModal.style.display = 'none';
         currentSticker = null;
     }
 
@@ -182,30 +212,70 @@
         }
     });
 
-    // Удаление стикера
     deleteStickerBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'block';
+    });
+
+    // Удаление стикера
+    confirmDeleteBtn.addEventListener('click', () => {
         if (currentSticker) {
-            currentSticker.remove();
-            closeModal();
+            currentSticker.style.transform = 'scale(0.8)';
+            currentSticker.style.opacity = '0';
+            currentSticker.style.transition = 'all 0.3s ease';
+
+            setTimeout(() => {
+                if (currentSticker && currentSticker.parentNode) {
+                    currentSticker.remove();
+                }
+                closeModal();
+            }, 300);
         }
     });
 
-    // Закрытие модалки
+    cancelDeleteBtn.addEventListener('click', closeModal);
     closeModalBtn.addEventListener('click', closeModal);
 
-    // RGB в HEX
+    stickerContainer.addEventListener('mousedown', (e) => {
+        if (e.target === stickerContainer) {
+            isPanning = true;
+            startPanX = e.clientX;
+            startPanY = e.clientY;
+            stickerContainer.style.cursor = 'grabbing';
+            lastPanPosition = { ...containerOffset };
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isPanning) {
+            const dx = e.clientX - startPanX;
+            const dy = e.clientY - startPanY;
+
+            containerOffset.x = lastPanPosition.x + dx;
+            containerOffset.y = lastPanPosition.y + dy;
+
+            stickerContainer.style.transform = `translate(${containerOffset.x}px, ${containerOffset.y}px)`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isPanning) {
+            isPanning = false;
+            stickerContainer.style.cursor = 'grab';
+        }
+    });
+
+    // Вспомогательная функция
     function rgbToHex(rgb) {
         if (!rgb || rgb === '') return '#ffeb3b';
         if (rgb.startsWith('#')) return rgb;
-
         const rgbValues = rgb.match(/\d+/g);
         if (!rgbValues || rgbValues.length < 3) return '#ffeb3b';
-
         return `#${rgbValues.map(x => parseInt(x).toString(16).padStart(2, '0')).join('')}`;
     }
 
-    // Создаем несколько стикеров при загрузке
+    // Создаем начальные стикеры
     createSticker('Двойной клик для редактирования', '#ffcc80', 200, 200, 'инструкция, помощь');
-    createSticker('Перетаскивайте меня', '#a5d6a7', 400, 150, 'пример, тест');
+    createSticker('Перетаскивайте за правый верхний угол', '#a5d6a7', 400, 150, 'пример, тест');
     createSticker('Купить молоко', '#80deea', 300, 300, 'покупки, важно');
 });

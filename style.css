@@ -1,85 +1,213 @@
-﻿body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+﻿:root {
+    --primary-color: #4a6fa5;
+    --secondary-color: #6c757d;
+    --danger-color: #e74c3c;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: var(--dark-color);
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
-    overflow: hidden;
+}
+
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+    .app-header h1 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 30px;
+    padding: 5px 15px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+    .search-box:focus-within {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+#searchInput {
+    border: none;
+    padding: 10px;
+    width: 300px;
+    outline: none;
+    font-family: inherit;
+    background: transparent;
+}
+
+.btn-search {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    color: var(--primary-color);
 }
 
 .sticker-container {
-    position: absolute;
-    width: 100%;
-    height: calc(100vh - 60px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    min-height: 60vh;
 }
 
 .sticker {
-    position: absolute;
-    width: 200px;
-    min-height: 150px;
+    position: relative;
+    width: 250px;
+    min-height: 180px;
     background-color: #ffeb3b;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    padding: 10px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 15px;
     user-select: none;
-    overflow: visible; /* Изменено с hidden на visible */
-    cursor: default; /* Изменено с grab на default */
+    overflow: visible;
+    cursor: default;
+    transition: all 0.3s ease;
+    animation: popIn 0.3s ease-out;
 }
 
-.sticker:active {
-    cursor: grabbing;
-}
+    .sticker:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
 
 .sticker-content {
-    min-height: 100px;
+    min-height: 120px;
     outline: none;
     cursor: text;
     pointer-events: auto;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .sticker-drag-handle {
     position: absolute;
-    top: -10px;
-    right: -10px;
-    width: 30px;
-    height: 30px;
-    background-color: #ffffff;
-    border: 2px solid #cccccc;
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    background-color: white;
+    border: 2px solid var(--primary-color);
     border-radius: 50%;
     cursor: grab;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow);
     z-index: 2;
+    transition: var(--transition);
 }
 
-.sticker-drag-handle:active {
-    cursor: grabbing;
-    background-color: #f0f0f0;
-}
+    .sticker-drag-handle:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-.sticker-drag-handle::after {
-    content: "⠿";
-    font-size: 16px;
-    color: #555;
+    .sticker-drag-handle:active {
+        cursor: grabbing;
+        transform: scale(0.95);
+    }
+
+    .sticker-drag-handle::after {
+        content: "⠿";
+        font-size: 16px;
+    }
+
+.sticker-tags {
+    font-size: 12px;
+    color: var(--secondary-color);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
 }
 
 .controls {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    text-align: center;
+    margin-top: 30px;
 }
 
+/* Кнопки */
 button {
-    padding: 10px 15px;
-    background: #4CAF50;
-    color: white;
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
     cursor: pointer;
+    transition: var(--transition);
 }
 
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+    .btn-primary:hover {
+        background-color: #3a5a8f;
+        transform: translateY(-2px);
+    }
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+
+.btn-clear {
+    background-color: white;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+    .btn-clear:hover {
+        background-color: #f8d7da;
+    }
+
+/* Модальные окна */
 .modal {
     display: none;
     position: fixed;
@@ -87,58 +215,199 @@ button {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 100;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content {
     background: white;
-    width: 300px;
-    padding: 20px;
-    border-radius: 5px;
+    width: 400px;
+    padding: 25px;
+    border-radius: 10px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease-out;
 }
+
+.confirm-modal {
+    text-align: center;
+    width: 350px;
+}
+
+.modal-actions {
+    margin-top: 20px;
+}
+
+.buttons-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.color-picker, .tags-input {
+    margin: 15px 0;
+}
+
+    .tags-input input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+    }
 
 textarea {
     width: 100%;
     height: 150px;
-    margin: 10px 0;
-}
-
-.search-container {
-    margin-bottom: 20px;
-    text-align: center;
     padding: 10px;
-    background: #e0e0e0;
+    border: 1px solid #ddd;
     border-radius: 5px;
+    resize: none;
+    font-family: inherit;
 }
 
-.search-container input {
-    padding: 8px;
-    width: 300px;
-    margin-right: 10px;
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-.tags-input {
-    margin: 10px 0;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }
 
-.tags-input input {
+@keyframes popIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    80% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+}
+
+.sticker.dragging {
+    transition: none !important;
+}
+
+/* Фиксируем размер стикеров */
+.sticker {
+    min-height: 180px;
+    height: auto;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Фон на всю возможную область */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) fixed;
+    background-size: cover;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+/* Контейнер для стикеров с возможностью перемещения */
+.sticker-container {
+    position: absolute;
+    min-width: 100%;
+    min-height: 100%;
+    cursor: grab;
+    transition: none;
+}
+
+    .sticker-container.grabbing {
+        cursor: grabbing;
+    }
+
+/* Исправление проблем с перетаскиванием и прокруткой */
+.sticker-container {
+    position: absolute;
     width: 100%;
-    padding: 8px;
+    height: 100%;
+    cursor: grab;
+    transform: translate(0px, 0px);
+    will-change: transform;
 }
 
-.sticker-tags {
-    font-size: 12px;
-    color: #555;
-    margin-top: 5px;
-    padding-top: 5px;
-    border-top: 1px dashed #ccc;
+.sticker {
+    position: absolute;
+    width: 250px;
+    min-height: 180px;
+    max-height: 300px;
+    overflow: hidden; /* Изменено с auto на hidden */
+    box-sizing: border-box;
 }
 
-.hidden {
-    display: none;
+.sticker-content {
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 5px; /* Добавляем место для скроллбара */
 }
+
+.sticker-drag-handle {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    z-index: 10; /* Увеличено значение */
+    overflow: visible; /* Добавлено */
+}
+
+/* Кастомный скроллбар */
+.sticker-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sticker-content::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+    .sticker-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.3);
+    }
