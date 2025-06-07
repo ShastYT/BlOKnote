@@ -15,12 +15,41 @@
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const centerStickersBtn = document.getElementById('centerStickersBtn');
 
     let currentSticker = null;
     let isPanning = false;
     let startPanX, startPanY;
     let containerOffset = { x: 0, y: 0 };
     let lastPanPosition = { x: 0, y: 0 };
+
+    function saveStickers() {
+        const stickers = [];
+        document.querySelectorAll('.sticker').forEach(sticker => {
+            stickers.push({
+                content: sticker.querySelector('.sticker-content').textContent,
+                color: sticker.style.backgroundColor,
+                x: parseInt(sticker.style.left),
+                y: parseInt(sticker.style.top),
+                tags: sticker.dataset.tags || ''
+            });
+        });
+        localStorage.setItem('stickers', JSON.stringify(stickers));
+    }
+
+    function loadStickers() {
+        const savedStickers = localStorage.getItem('stickers');
+        if (savedStickers) {
+            JSON.parse(savedStickers).forEach(sticker => {
+                createSticker(sticker.content, sticker.color, sticker.x, sticker.y, sticker.tags);
+            });
+        } else {
+            // Создаем начальные стикеры, если нет сохраненных
+            createSticker('Двойной клик для редактирования', '#ffcc80', 200, 200, 'инструкция, помощь');
+            createSticker('Перетаскивайте за правый верхний угол', '#a5d6a7', 400, 150, 'пример, тест');
+            createSticker('Купить молоко', '#80deea', 300, 300, 'покупки, важно');
+        }
+    }
 
     // Добавление нового стикера
     addStickerBtn.addEventListener('click', () => {
@@ -30,6 +59,16 @@
             viewportCenterX - containerOffset.x,
             viewportCenterY - containerOffset.y,
             '');
+    });
+
+    centerStickersBtn.addEventListener('click', () => {
+        stickerContainer.style.transition = 'transform 0.5s ease-out';
+        stickerContainer.style.transform = 'translate(0, 0)';
+        containerOffset = { x: 0, y: 0 };
+
+        setTimeout(() => {
+            stickerContainer.style.transition = 'none';
+        }, 500);
     });
 
     function centerView(x, y) {
@@ -207,8 +246,9 @@
             } else if (tagsDiv) {
                 tagsDiv.remove();
             }
-
+            saveStickers();
             closeModal();
+
         }
     });
 
@@ -227,6 +267,7 @@
                 if (currentSticker && currentSticker.parentNode) {
                     currentSticker.remove();
                 }
+                saveStickers();
                 closeModal();
             }, 300);
         }
@@ -236,7 +277,7 @@
     closeModalBtn.addEventListener('click', closeModal);
 
     stickerContainer.addEventListener('mousedown', (e) => {
-        if (e.target === stickerContainer) {
+        if (!e.target.closest('.app-header, .controls, .sticker-drag-handle, .modal')) {
             isPanning = true;
             startPanX = e.clientX;
             startPanY = e.clientY;
@@ -258,12 +299,25 @@
         }
     });
 
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            closeModal();
+        }
+    });
+
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) {
+            closeModal();
+        }
+    });
+
     document.addEventListener('mouseup', () => {
         if (isPanning) {
             isPanning = false;
             stickerContainer.style.cursor = 'grab';
         }
     });
+
 
     // Вспомогательная функция
     function rgbToHex(rgb) {
@@ -275,7 +329,5 @@
     }
 
     // Создаем начальные стикеры
-    createSticker('Двойной клик для редактирования', '#ffcc80', 200, 200, 'инструкция, помощь');
-    createSticker('Перетаскивайте за правый верхний угол', '#a5d6a7', 400, 150, 'пример, тест');
-    createSticker('Купить молоко', '#80deea', 300, 300, 'покупки, важно');
+    loadStickers();
 });
