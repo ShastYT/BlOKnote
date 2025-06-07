@@ -1,40 +1,42 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Мои заметки</title>
+    <meta charset="UTF-8">
+    <title>Интерактивные стикеры с тегами</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Поиск по тегам или содержимому">
+        <button id="searchBtn">Найти</button>
+        <button id="clearSearchBtn">Сбросить</button>
+    </div>
 
-    <div class="app">
-        <h1>📝 Мои заметки</h1>
+    <div class="sticker-container" id="stickerContainer">
+        <!-- Стикеры тут -->
+    </div>
 
-        <!-- Поиск и фильтр -->
-        <div class="search">
-            <input type="text" id="search-input" placeholder="Поиск...">
-        </div>
+    <div class="controls">
+        <button id="addStickerBtn">+ Новый стикер</button>
+    </div>
 
-        <!-- Форма добавления заметки -->
-        <div class="note-editor">
-            <input type="text" id="note-title" placeholder="Название заметки">
-            <textarea id="note-text" placeholder="Текст заметки"></textarea>
-            <input type="text" id="note-tags" placeholder="Теги (через запятую)">
-            <!-- Добавляем эту кнопку -->
-            <button id="save-btn">Сохранить</button>
-        </div>
-
-        <!-- Список заметок -->
-        <div class="notes-list" id="notes-list"></div>
-
-
-        <div class="color-picker">
-            <label for="note-color">Цвет заметки: <span class="color-preview" style="background-color: #fff9c4"></span></label>
-            <input type="color" id="note-color" value="#fff9c4" title="Выберите цвет">
-            <div class="recent-colors" id="recent-colors"></div>
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>Редактирование</h3>
+            <textarea id="stickerContent"></textarea>
+            <div class="color-picker">
+                <input type="color" id="stickerColor" value="#ffeb3b">
+            </div>
+            <div class="tags-input">
+                <label for="stickerTags">Теги (через запятую):</label>
+                <input type="text" id="stickerTags" placeholder="работа, важно, идеи">
+            </div>
+            <button id="saveStickerBtn">Сохранить</button>
+            <button id="deleteStickerBtn">Удалить</button>
+            <button id="closeModalBtn">Закрыть</button>
         </div>
     </div>
-  
-  <script src="script.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
